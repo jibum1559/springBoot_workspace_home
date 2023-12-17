@@ -1,0 +1,13 @@
+package com.kh.springdb.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.kh.springdb.model.Comments;
+import com.kh.springdb.model.Product;
+
+public interface CommentRepository extends JpaRepository<Comments, Long> {
+	
+	Product getProductIdByCommentId(int id) ;
+		
+	
+}

@@ -1,0 +1,13 @@
+package com.kh.springdb.repository;
+
+import java.time.LocalDateTime;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.kh.springdb.model.Comments;
+
+public interface CommentRepository extends JpaRepository<Comments, Long> {
+	
+	Comments findAllByProductOrderByCommentCreateDateAsc(LocalDateTime commentCreateDate);
+	
+}

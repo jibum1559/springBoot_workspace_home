@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+	<head>
+		<meta charset="UTF-8">
+		<title>productList</title>
+		    <style>
+        .product-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .product-item {
+            width: 30%; 
+            margin: 1%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .product-image {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+	<script>
+		function likeProduct(productId) {
+			alert('좋아요를 누르셨습니다.' + productId);
+		}
+	
+	</script>
+	</head>
+	<body>
+		<h1>productList</h1>
+			    <a sec:authorize="isAnonymous()" th:href="@{/user/signup}">회원가입</a>
+		<a sec:authorize="isAnonymous()" th:href="@{/user/login}">로그인</a>
+	    <a sec:authorize="isAuthenticated()" th:href="@{/user/logout}">로그아웃</a>
+		<div th:if="${#authorization.expression('isAuthenticated()')}">
+			<p th:text="'안녕하세요, ' + ${#authentication.name} + '님 환영합니다.'"></p>
+		</div>
+	    
+		
+			<a th:href="@{/product/new}">상품추가하기</a>
+	<!-- 1 -->	<div class="product-container" th:each="product, loop : ${paging.content}">
+			    	<div class="product-item">
+				    	<div th:if="${product.imgName != null and product.imgPath != null}">		
+					    	 <img class="product-image" th:src="@{${product.imgPath}}" >
+					    </div>
+					    <div th:unless="${product.imgName != null and product.imgPath != null}">
+					        <img class="product-image" th:src="@{'/img/notImg.jpg'}" >
+					    </div>
+			
+						<label>제품명 : </label>
+						<span th:text="${product.name}"></span>
+						
+						<label>제품 가격 : </label>
+						<span th:text="${product.price}"></span>
+						
+						<button th:if="${#authorization.expression('isAuthenticated()')}"
+							th:onclick=" 'likeProduct(' + ${product.id} + '   )  ' "
+							type="button">좋아요</button>
+						<span th:text="${product.likes}"></span>likes
+						
+
+						
+						
+						
+						
+						<a th:href="@{'/product/detail/' + ${product.id}}">상세보기</a>
+						
+						
+						<!-- 장바구니에 상품을 담고자 한다면 장바구니에 담기 버튼 생성해서 담아주기 -->
+						<form th:action="@{/cart/add}" method="post">
+							<input type="hidden" name="productId" th:value="${product.id}"/>
+							<button type="submit">장바구니에 담기</button>
+						</form>	
+						<!-- 게시물에 번호 주기 -->
+						<!--  div th:text="${paging.getTotalElements 
+								-(paging.number * paging.size) -loop.index}"></div-->
+						<div th:text="${paging.getTotalElements -((paging.number-1) *paging.size) -loop.index}"></div>
+					</div>
+					
+				</div>
+				<!--  페이징을 하기 위한 번호 목록 만들어주기 -->
+				    <div th:if="${!paging.isEmpty()}">
+					    <ul>
+					         <li th:classappend="${!paging.hasPrevious} ? 'disabled'">
+	                   <!--  
+					            	"(큰 따옴표)로 감싸진 thymeleaf 안에
+					            	'(작은 따옴표)로 감싸서 기존에 문자와 코드를 구분했지만
+					            	|(파이프)로 감싸진 문구는 동적으로 바뀌는 문자열을 의미함
+					             -->
+						        <a th:href="@{|?page=${paging.number-1}|}">
+					            	<span>이전</span>
+		                		</a>
+	            			</li>
+				 			<li th:each="page: ${#numbers.sequence(0, paging.totalPages-1)}" 
+				                th:if="${page >= paging.number-3 and page <= paging.number+3}"
+				                th:classappend="${page == paging.number} ? 'active'" 
+				            >
+				                <a th:text="${page}" class="page-link" th:href="@{|?page=${page}|}"></a>
+				            </li>
+							<li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
+				                <a th:href="@{|?page=${paging.number+1}|}">
+				                    <span>다음</span>
+				                </a>
+				            </li>
+					    </ul>
+				</div>
+			
+			
+	</body>
+</html>
+			
+		<!-- 
+		
+			paging.isEmpty = 
+				게시물이 존재하는지 존재하지 않는지 체크
+			paging.totalElements = 
+				전체 게시물 개수
+			paging.totalPages = 
+				전체 페이지 개수
+			paging.size = 
+				페이지당 보여줄 게시물 수
+			paging.number = 
+				현재 페이지 번호
+			paging.hasPrevios = 
+				이전 페이지가 존재하는지 확인하는 존재여부
+			paging.hasNext = 
+				다음 페이지가 존재하는지 확인하고 다음페이지가 없으면 막을 수 있도록 확인해주는 여부
+		
+		 -->
+		

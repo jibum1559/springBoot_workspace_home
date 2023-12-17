@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="EUC-KR">
+		<title>Product List</title>
+		<style>
+			.product-container {
+				max-width: 900px;
+				margin: 0 auto;
+			}
+			.product {
+				float: left;
+				width: 200px;
+				border: 1px solid #ccc;
+				padding: 10px;
+				text-align: center;
+				margin: 10px;
+			}
+			.product img {
+				width: 100%;
+				height: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Product List</h1>
+			<div>
+			    <a sec:authorize="isAnonymous()" th:href="@{/user/signup}">회원가입</a>
+				<a sec:authorize="isAnonymous()" th:href="@{/user/login}">로그인</a>
+				<a sec:authorize="isAuthenticated()" th:href="@{/user/logout}">로그아웃</a>
+					<div th:if="${#authorization.expression('isAuthenticated()')}">
+					<p th:text="'안녕하세요, ' + ${#authentication.name} + '님. 환영합니다.'"></p>
+			</div> 
+				<a th:href="@{/product/new}">상품추가하기</a>
+		<div class="product-container">
+			<div class="product">
+				
+			<div th:each="product : ${products}">
+			  <div th:if="${product.imgName != null and product.imgPath != null}">		
+			    	<img th:src="@{${product.imgPath}}" >
+			    </div>
+			    <div th:unless="${product.imgName != null and product.imgPath != null}">
+			        <img th:src="@{'/img/notImg.jpg'}" >
+			    </div>
+	
+			<label>제품명 : </label>
+			<span th:text="${product.name}"></span><br>
+			
+			<label>제품 가격 : </label>
+			<span th:text="${product.price}"></span><br>
+			
+			<a th:href="@{'/product/detail/' + ${product.id}}">상세보기</a>
+			
+			<!-- 장바구니에 상품을 담고자 한다면 장바구니에 담기 버튼 생성해서 담아주기 -->
+			<form th:action="@{/cart/add}" method="post">
+				<input type="hidden" name="productId" th:value="${product.id}"/>
+				<button type="submit">장바구니에 담기</button>
+			</form>
+		</div>
+		</div>
+	</div>
+	</body>
+</html>
