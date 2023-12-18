@@ -45,6 +45,13 @@ public class ProductController {
 			model.addAttribute("paging", paging);
 			return "product_List";
 		}
+		
+		@GetMapping("/commentPage")
+		public String commentPageList(Model model, @RequestParam(value="page", defaultValue="0") int page) {
+			Page<Comments> commentsPaging = commentService.getCommentsList(page);
+			model.addAttribute("commentsPaging", commentsPaging);
+			return "product_detail";
+		}
 	/*
 	//상품 전체 목록 페이지로 이동하기 위한 GetMapping
 	@GetMapping("/product/list")

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+	<head>
+	    <meta charset="UTF-8">
+	    <title>View</title>
+	    <style>
+			.product-container {
+				max-width: 900px;
+				margin: 0 auto;
+			}
+			.product {
+				float: left;
+				width: 200px;
+				border: 1px solid #ccc;
+				padding: 10px;
+				text-align: center;
+				margin: 10px;
+			}
+			.product img {
+				width: 100%;
+				height: auto;
+			}
+			
+			.comment-textPosition button {
+				float : right;
+			}
+			.comment-textPosition span {
+				text-align: left;
+			}
+			
+		</style>
+		
+	</head>
+	<body>
+	    <h1>View</h1>
+	    <div>
+	    	<a sec:authorize="isAnonymous()" th:href="@{/user/signup}">회원가입</a>
+		 	<a sec:authorize="isAnonymous()" th:href="@{/user/login}">로그인</a>
+		    <a sec:authorize="isAuthenticated()" th:href="@{/user/logout}">로그아웃</a>
+		    <div th:if="${#authorization.expression('isAuthenticated()')}">
+		        <p th:text="'안녕하세요, ' + ${#authentication.name} + '님. 환영합니다.'"></p>
+		    </div>
+		  	
+		  	<a sec:authorize="hasRole('ADMIN')" th:href="@{/product/detail/{id}}">상품수정하기</a>
+		  	 	
+	    	<!-- 상품 수정하기 버튼 관리자만 볼 수 있게 해줌-->
+		  	<a sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/product/edit}">상품수정하기</a>
+	    	<!-- 2번 째 방법-->
+		    <a th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}" th:href="@{/product/edit}">상품수정하기</a>
+		    	
+		<div class="product-container">
+			<div class="product">	   
+	    		<!--img 경로와 이미지 이름-->
+				<!--이미지가 없을 수 있으니 이미지가 없으면 안보여주고 이미지가 존재한다면 보여줄 수 있도록 설정-->
+			    <div th:if="${product.imgName != null and product.imgPath != null}">
+			        <img th:src="@{${product.imgPath}}"/>
+			    </div>
+			    <div th:unless="${product.imgName != null and product.imgPath != null}">
+			        <img th:src="@{'/img/NoIMG.jpg'}" />
+			    </div>
+			    
+			    <label>상품명 :</label>
+			    <span th:text="${product.name}"></span>
+			    <br>
+			    <label>상세설명 :</label>
+			    <span th:text="${product.text}"></span>
+			    <br>
+			    <label>가격 :</label>
+			    <span th:text="${product.price}"></span>
+			    <br>
+			    <label>재고 : </label>
+			    <span th:text="${product.stock}"></span>
+			    <br>
+			    
+			    <!-- 댓글 표시 -->
+			    <h2>댓글</h2>
+			    <div th:each="comment : ${product.comments}" class="comment-textPosition">
+					<span th:text="${comment.content}"><br></span>
+					<button type="submit"><a th:href="@{/deleteComment/{id}(id=${comment.id}, productId=${product.id})}">x</a></button>
+				</div>
+				
+				<div th:if="${!paging.isEmpty()}" class="pagingcomment">
+					<ul>
+						<li th:classappend="${paging.hasPrevious()} ? 'disabled'">
+							<a th:if="${paging.hasPrevious()}" th:href="@{|?page=${paging.number-1}|}">
+								<span>이전</span>
+							</a>
+							<a th:if="${!paging.hasPrevious()}" href="#">
+								<span>이전</span>
+							</a>
+						</li>
+					</ul>
+				</div>
+				
+			    <!-- 댓글 입력 폼 -->
+			    <!-- <form th:action="@{/addComment(productId=${product.id},commentContent=${commentContent})}" method="post"></form> -->
+				<form th:action="@{/addComment}" method="post">
+					<input type="hidden" name="productId" th:value="${product.id}"/>
+					<input type="text" id="commentContent" name="commentContent" placeholder="댓글을 입력하세요." required>
+					<button type="submit">댓글등록</button>
+				</form>
+				
+			    <a th:href="@{/product/list}">돌아가기</a>
+			  </div>
+		 </div>
+	</body>
+</html>
